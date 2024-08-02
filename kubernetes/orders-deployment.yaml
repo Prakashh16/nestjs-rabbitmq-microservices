@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orders
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: orders
+  template:
+    metadata:
+      labels:
+        app: orders
+    spec:
+      containers:
+      - name: orders
+        image: prakashh16/nestjs-rabbitmq-microservices-main-orders:latest
+        command: ["npm", "run", "start:dev", "orders"]
+        ports:
+        - containerPort: 3000
+        env:
+        - name: MONGODB_ADVERTISED_HOSTNAME
+          value: mongodb-primary
+        - name: MONGODB_REPLICA_SET_MODE
+          value: primary
+        - name: MONGODB_ROOT_PASSWORD
+          value: password123
+        - name: MONGODB_REPLICA_SET_KEY
+          value: replicasetkey123  
+        resources:
+          limits:
+            cpu: "0.5"
+            memory: "512Mi"
+          requests:
+            cpu: "0.1"
+            memory: "256Mi"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: orders
+spec:
+  type: NodePort
+  ports:
+  - port: 3000
+    targetPort: 3000
+    nodePort: 31003 
+  selector:
+    app: orders

@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: billing
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: billing
+  template:
+    metadata:
+      labels:
+        app: billing
+    spec:
+      containers:
+      - name: billing
+        image: prakashh16/nestjs-rabbitmq-microservices-main-billing:latest
+        command: ["npm", "run", "start:dev", "billing"]
+        ports:
+        - containerPort: 3000
+        env:
+        - name: RABBIT_MQ_URI
+          value: "amqp://192.168.59.102:31005" 
+        - name: RABBIT_MQ_BILLING_QUEUE
+          value: "billing"
+        - name: MONGODB_ADVERTISED_HOSTNAME
+          value: mongodb-primary
+        - name: MONGODB_REPLICA_SET_MODE
+          value: primary
+        - name: MONGODB_ROOT_PASSWORD
+          value: password123
+        - name: MONGODB_REPLICA_SET_KEY
+          value: replicasetkey123 
+        resources:
+          limits:
+            cpu: "0.5"
+            memory: "512Mi"
+          requests:
+            cpu: "0.1"
+            memory: "256Mi" 
+     
+
+
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: billing
+# spec:
+#   selector:
+#     app: billing     
